@@ -229,7 +229,7 @@
       },
       "targets": [
         {
-          "rawQueryText": "SELECT DATE(time) || 'T00:00:00Z' as time, CAST(SUM(value) AS INTEGER) as '歩数' FROM steps GROUP BY DATE(time) ORDER BY time",
+          "rawQueryText": "SELECT DATE(time) || 'T00:00:00Z' as time, CAST(SUM(value) AS INTEGER) as '歩数' FROM steps WHERE source LIKE '%iPhone%' GROUP BY DATE(time) ORDER BY time",
           "queryType": "table",
           "timeColumns": ["time"]
         }

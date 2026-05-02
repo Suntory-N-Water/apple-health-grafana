@@ -54,7 +54,8 @@ def create_tables(cur: sqlite3.Cursor):
             CREATE TABLE IF NOT EXISTS {table} (
                 time TEXT NOT NULL,
                 value REAL,
-                unit TEXT
+                unit TEXT,
+                source TEXT
             )
         """)
         cur.execute(f"DELETE FROM {table}")
@@ -77,7 +78,8 @@ def create_tables(cur: sqlite3.Cursor):
             activity_type TEXT NOT NULL,
             duration_min REAL,
             distance_km REAL,
-            energy_kcal REAL
+            energy_kcal REAL,
+            source TEXT
         )
     """)
     cur.execute("DELETE FROM workouts")
@@ -131,9 +133,10 @@ def main(xml_path: str, db_path: str = "data/health.db"):
             except ValueError:
                 value = None
             unit = elem.attrib.get("unit", "")
+            source = elem.attrib.get("sourceName", "")
             cur.execute(
-                f"INSERT INTO {table} (time, value, unit) VALUES (?, ?, ?)",
-                (time, value, unit),
+                f"INSERT INTO {table} (time, value, unit, source) VALUES (?, ?, ?, ?)",
+                (time, value, unit, source),
             )
             counts[table] = counts.get(table, 0) + 1
 
@@ -144,6 +147,7 @@ def main(xml_path: str, db_path: str = "data/health.db"):
             )
             start = parse_date(elem.attrib.get("startDate", ""))
             end = parse_date(elem.attrib.get("endDate", ""))
+            source = elem.attrib.get("sourceName", "")
             try:
                 duration = float(elem.attrib.get("duration", "0"))
             except ValueError:
@@ -169,8 +173,8 @@ def main(xml_path: str, db_path: str = "data/health.db"):
                     energy_kcal = val
 
             cur.execute(
-                "INSERT INTO workouts (time, end_time, activity_type, duration_min, distance_km, energy_kcal) VALUES (?, ?, ?, ?, ?, ?)",
-                (start, end, activity, duration, distance_km, energy_kcal),
+                "INSERT INTO workouts (time, end_time, activity_type, duration_min, distance_km, energy_kcal, source) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (start, end, activity, duration, distance_km, energy_kcal, source),
             )
             counts["workouts"] = counts.get("workouts", 0) + 1
 
